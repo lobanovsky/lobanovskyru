@@ -38,6 +38,60 @@ MOCK
 chmod +x /mock/docker
 export PATH="/mock:$PATH"
 
+cat > /mock/ssh <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+printf '%s\n' "${0##*/}" >> "$PORT_CALLS"
+found_port=false
+found_strict=false
+while [[ $# -gt 0 ]]; do
+  if [[ "$1" == -o ]]; then
+    case "$2" in
+      Port=*) [[ "$2" == "Port=$EXPECTED_PORT" ]]; found_port=true ;;
+      StrictHostKeyChecking=yes) found_strict=true ;;
+    esac
+    shift 2
+  else
+    shift
+  fi
+done
+[[ "$found_port" == true && "$found_strict" == true ]]
+if [[ "${0##*/}" == ssh ]]; then cat > /dev/null; fi
+MOCK
+chmod +x /mock/ssh
+cp /mock/ssh /mock/scp
+
+run_port_case() {
+  local name="$1" port="$2" expected_port="$3" expected_status="$4"
+  local status=0
+  export PORT_CALLS="/tmp/port-$name.calls" EXPECTED_PORT="$expected_port"
+  : > "$PORT_CALLS"
+  (
+    export DEPLOY_HOST=example.test DEPLOY_USER=test DEPLOY_HOST_PROJECT_PATH=/home/test/site
+    export RELEASE_ID=test SITE_IMAGE=test/image@sha256:abc DOCKER_USERNAME=test DOCKER_TOKEN=dummy
+    if [[ "$port" == unset ]]; then unset DEPLOY_PORT; else export DEPLOY_PORT="$port"; fi
+    bash /tests/deploy.sh < /dev/null
+  ) > "/tmp/port-$name.output" 2>&1 || status=$?
+  if [[ "$status" != "$expected_status" ]]; then cat "/tmp/port-$name.output"; exit 1; fi
+  if [[ "$expected_status" == 0 ]]; then
+    [[ "$(grep -c '^ssh$' "$PORT_CALLS")" == 5 ]]
+    [[ "$(grep -c '^scp$' "$PORT_CALLS")" == 1 ]]
+  else
+    [[ ! -s "$PORT_CALLS" ]]
+  fi
+  echo "PASS: port-$name"
+}
+run_port_case custom 2222 2222 0
+run_port_case default unset 22 0
+run_port_case empty '' 22 0
+run_port_case minimum 1 1 0
+run_port_case maximum 65535 65535 0
+run_port_case zero 0 unused 1
+run_port_case oversized 65536 unused 1
+run_port_case text abc unused 1
+run_port_case negative -1 unused 1
+run_port_case injection '22 -o StrictHostKeyChecking=no' unused 1
+
 run_case() {
   local name="$1" has_previous="$2" mode="$3" expected_status="$4" expected_running="$5"
   export TEST_PROJECT="/home/$name" TEST_MODE="$mode"

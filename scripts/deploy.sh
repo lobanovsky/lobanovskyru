@@ -8,6 +8,12 @@ set -euo pipefail
 : "${SITE_IMAGE:?Set SITE_IMAGE}"
 : "${DOCKER_USERNAME:?Set DOCKER_USERNAME}"
 : "${DOCKER_TOKEN:?Set DOCKER_TOKEN}"
+DEPLOY_PORT="${DEPLOY_PORT:-22}"
+if [[ ! "$DEPLOY_PORT" =~ ^[0-9]{1,5}$ ]] || (( 10#$DEPLOY_PORT < 1 || 10#$DEPLOY_PORT > 65535 )); then
+  echo 'DEPLOY_PORT must be an integer from 1 to 65535' >&2
+  exit 1
+fi
+DEPLOY_PORT=$((10#$DEPLOY_PORT))
 [[ "$DEPLOY_HOST" =~ ^[a-zA-Z0-9][a-zA-Z0-9.-]*$ ]]
 [[ "$DEPLOY_USER" =~ ^[a-z_][a-z0-9_-]*$ ]]
 [[ "$DEPLOY_HOST_PROJECT_PATH" =~ ^/home/[a-zA-Z0-9_/-]+$ && "$DEPLOY_HOST_PROJECT_PATH" != *..* ]]
@@ -17,7 +23,7 @@ set -euo pipefail
 
 remote="$DEPLOY_USER@$DEPLOY_HOST"
 release="$DEPLOY_HOST_PROJECT_PATH/releases/$RELEASE_ID"
-ssh_opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=15)
+ssh_opts=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=15 -o Port="$DEPLOY_PORT")
 cleanup() {
   ssh "${ssh_opts[@]}" "$remote" "rm -f '$release/.docker/config.json'; rmdir '$release/.docker' 2>/dev/null || true" || true
 }
