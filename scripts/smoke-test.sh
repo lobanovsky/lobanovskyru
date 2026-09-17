@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 image="${1:?Image required}"
-container="$(docker run -d --read-only --cap-drop ALL --security-opt no-new-privileges \
+container="$(docker run -d --read-only --cap-drop ALL \
   --tmpfs /tmp --tmpfs /config:uid=1000,gid=1000 --tmpfs /data:uid=1000,gid=1000 \
   -p 127.0.0.1::8080 "$image")"
 trap 'docker rm -f "$container" >/dev/null' EXIT
