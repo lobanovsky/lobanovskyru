@@ -1,0 +1,55 @@
+---
+import '../styles/global.css';
+import '../styles/basket.css';
+const specifications = [
+  ['Размер корзины', '45 × 31 см'],
+  ['Высота от пола', '50 см'],
+  ['Материал', 'Стальная проволока'],
+  ['Подставка', 'Проволока 6 мм, 4 ножки'],
+  ['Цвет', 'Чёрный матовый'],
+  ['Вместимость', '4–6 стандартных пакетов'],
+];
+---
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Корзина Лобановского — место для доставки у двери</title>
+    <meta name="description" content="Пакеты с доставкой больше не лежат на полу. Корзина Лобановского — постоянное место для продуктов у вашей двери. Сделано Бюро Лобановского." />
+    <link rel="canonical" href="https://basket.lobanovsky.ru/" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#f9f9f6" />
+    <meta property="og:title" content="Корзина Лобановского — пакеты больше не на полу" />
+    <meta property="og:description" content="Постоянное место для доставок у вашей двери. Простое решение для ежедневной задачи." />
+    <meta property="og:url" content="https://basket.lobanovsky.ru/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://basket.lobanovsky.ru/basket/media/at-the-door.webp" />
+  </head>
+  <body class="basket-page">
+    <a class="skip" href="#main">Перейти к содержимому</a>
+    <header class="container header">
+      <a class="brand" href="https://lobanovsky.ru/">Бюро<br />Лобановского</a>
+      <nav aria-label="Основная навигация"><a href="#product">О корзине</a><a href="#order">Заказать</a></nav>
+    </header>
+    <main id="main">
+      <section class="container basket-hero">
+        <span class="eyebrow">Корзина Лобановского</span>
+        <h1>Доставка у двери.<br /><span class="blue">Пакеты не на полу.</span></h1>
+        <div class="basket-intro"><p>Для тех, кто заказывает продукты с доставкой «оставить у двери». Постоянное чистое место для вашего заказа.</p><a class="button" href="#order">Заказать корзину</a></div>
+        <img class="basket-cover" src="/basket/media/at-the-door.webp" width="1536" height="1024" alt="Корзина на подставке с пакетами у входных дверей" fetchpriority="high" />
+      </section>
+      <section class="container basket-story" id="product" aria-labelledby="product-title">
+        <div><span class="eyebrow">Простая вещь. Каждый день.</span><h2 id="product-title">У доставки<br />своё место.</h2><p>Курьеру больше не нужно выбирать между полом и придверным ковриком. Поставьте корзину у двери и укажите её в комментарии к заказу.</p><p>Подставка спроектирована под стандартную проволочную корзину и изготавливается вручную. Она поднимает пакеты над полом и помогает организовать место для доставки.</p></div>
+        <dl class="basket-specs">{specifications.map(([name, value]) => <div><dt>{name}</dt><dd>{value}</dd></div>)}</dl>
+      </section>
+      <section class="container basket-gallery" aria-label="Фотографии и размеры корзины"><img src="/basket/media/details.webp" width="1536" height="1024" alt="Корзина у двери, вид сбоку и сверху; ширина 31 см, длина 45 см, высота от пола 50 см" loading="lazy" /></section>
+      <section class="basket-origin"><div class="container"><span class="eyebrow">Сделано Бюро Лобановского</span><h2>Хорошие решения<br />бывают осязаемыми.</h2><p>Обычно мы автоматизируем бизнес и создаём цифровые сервисы. Корзина — наш первый физический продукт. Она появилась из той же логики: есть небольшая, но регулярная проблема, и для неё нужно простое рабочее решение.</p><a class="basket-text-link" href="https://lobanovsky.ru/">Другие проекты бюро</a></div></section>
+      <section class="container basket-order" id="order" aria-labelledby="order-title">
+        <div><span class="eyebrow">Для вашей следующей доставки</span><h2 id="order-title">Корзина<br />Лобановского</h2><p>Чёрная матовая. Корзина и подставка.</p></div>
+        <div class="basket-order-details"><p class="basket-price">2 999 ₽</p><p>Бесплатная доставка по Москве.<br />Оплата при получении.</p><a class="button" href="https://t.me/e_lobanovsky">Заказать в Telegram</a><p class="basket-order-note">Напишите нам — согласуем доставку и ответим на вопросы.</p><a class="basket-text-link" href="tel:+79267936363">+7 926 793 63 63</a><a class="basket-text-link" href="mailto:e.lobanovsky@ya.ru">e.lobanovsky@ya.ru</a></div>
+      </section>
+    </main>
+    <footer class="container footer"><a href="https://lobanovsky.ru/">© {new Date().getFullYear()} Бюро Лобановского</a><a href="#main">Наверх</a></footer>
+  </body>
+</html>

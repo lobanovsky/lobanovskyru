@@ -18,4 +18,9 @@ if [[ "$ready" != true ]]; then docker logs "$container"; exit 1; fi
 curl -fsS "$url/favicon.svg" >/dev/null
 curl -s "$url/not-a-page" | grep -q noindex
 curl -sSI -H 'Host: www.lobanovsky.ru' "$url/test?x=1" | tr -d '\r' | grep -qi '^location: https://lobanovsky.ru/test?x=1$'
-echo 'HTTP smoke tests passed (home, asset, 404, www redirect).'
+for path in / /index.html; do
+  curl -fsS -H 'Host: basket.lobanovsky.ru' "$url$path" | grep -q 'href="https://basket.lobanovsky.ru/"'
+done
+[[ "$(curl -s -o /dev/null -w '%{http_code}' -H 'Host: basket.lobanovsky.ru' "$url/not-a-page")" == 404 ]]
+curl -fsS -H 'Host: basket.lobanovsky.ru' "$url/basket/media/at-the-door.webp" >/dev/null
+echo 'HTTP smoke tests passed (bureau, basket, assets, 404, www redirect).'

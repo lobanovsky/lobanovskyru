@@ -18,6 +18,10 @@ services:
       traefik.http.routers.lobanovskyru.entrypoints: https
       traefik.http.routers.lobanovskyru.tls.certresolver: letsEncrypt
       traefik.http.services.lobanovskyru.loadbalancer.server.port: "8080"
+      traefik.http.routers.lobanovsky-basket.rule: Host(`basket.lobanovsky.ru`)
+      traefik.http.routers.lobanovsky-basket.entrypoints: https
+      traefik.http.routers.lobanovsky-basket.tls.certresolver: letsEncrypt
+      traefik.http.routers.lobanovsky-basket.service: lobanovskyru
     logging:
       driver: json-file
       options:

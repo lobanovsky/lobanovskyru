@@ -10,6 +10,11 @@
     root * /srv
     encode zstd gzip
     header Cache-Control "public, max-age=0, must-revalidate"
+    @basketHome {
+        host basket.lobanovsky.ru
+        path / /index.html
+    }
+    rewrite @basketHome /basket/index.html
     file_server
     handle_errors {
         rewrite * /404.html
