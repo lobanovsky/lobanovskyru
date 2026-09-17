@@ -1,0 +1,16 @@
+---
+import { theatres } from '../data/projects';
+interface Props {
+  project: { id: string; number: string; category: string; name: string; text: string; href?: string; action?: string; wide?: boolean; };
+}
+const { project } = Astro.props;
+---
+<article class:list={['project-card', project.id, { 'project-wide': project.wide }]} aria-labelledby={`${project.id}-title`}>
+  <div class="project-meta"><span>{project.category}</span><span>/{project.number}</span></div>
+  <div class="project-copy">
+    <h3 id={`${project.id}-title`}>{project.name}</h3>
+    <p>{project.text}</p>
+    {project.id === 'tickets' ? <details class="theatre-picker"><summary>Выбрать театр</summary><div class="theatre-links" aria-label="Театральные боты">{theatres.map(([name, bot]) => <a href={`https://t.me/${bot}`}>{name}</a>)}</div></details> :
+      <a class="project-link" href={project.href}>{project.action}<span class="sr-only"> — {project.name}</span></a>}
+  </div>
+</article>

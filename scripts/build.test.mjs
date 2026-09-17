@@ -14,7 +14,16 @@ test('homepage has working section targets, local assets and contact links', asy
   }
   assert.ok(html.includes('https://basket.lobanovsky.ru'));
   assert.ok(html.includes('mailto:e.lobanovsky@ya.ru'));
-  assert.ok(html.includes('https://t.me/e_lobanovsky'));
+  assert.ok(html.includes('tel:+79267936363'));
+  for (const product of ['TripPip', 'Билеты в продаже', 'Дом под управлением', 'Въезд под контролем', 'Корзина Лобановского', 'Робот-Рита']) {
+    assert.ok(html.includes(product), `Missing product ${product}`);
+  }
+  for (const bot of ['nations_ticket_bot', 'ramt_ticket_bot', 'fomenkiru_bot', 'vakhtangov_ticket_bot', 'lensov_ticket_bot', 'mxt_ticket_bot', 'satirikon_ticket_bot']) {
+    assert.ok(html.includes(`https://t.me/${bot}`), `Missing theatre bot ${bot}`);
+  }
+  assert.ok(html.includes('https://trippip.ru'));
+  assert.ok(html.includes('https://lobanovsky.ru/og.png'));
+  await access('dist/og.png');
   assert.doesNotMatch(html, /<form[ >]/);
 });
 
