@@ -1,0 +1,17 @@
+lobanovsky.ru {
+    root * /srv/lobanovsky/current
+    encode zstd gzip
+    header Cache-Control "public, max-age=0, must-revalidate"
+    file_server
+    handle_errors {
+        rewrite * /404.html
+        file_server
+    }
+}
+
+www.lobanovsky.ru {
+    redir https://lobanovsky.ru{uri} permanent
+}
+
+# basket.lobanovsky.ru remains on Tilda until its migration is ready.
+# Add a separate host and document root when migrating that site.
