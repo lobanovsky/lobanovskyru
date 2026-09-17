@@ -1,38 +1,41 @@
 # Бюро Лобановского
 
-Новый информационный сайт на Astro. HTML и CSS собираются в `dist/`; на сервере не нужны Node.js и база данных. Тексты прототипа нужно проверить перед публикацией. Иллюстрация корзины схематическая, её следует заменить фотографией продукта.
+Информационный сайт на Astro. Сборка и тесты выполняются в Docker; готовую статику обслуживает Caddy. На сервере HTTPS и маршрутизацией управляет существующий Traefik. `basket.lobanovsky.ru` пока остаётся на Тильде.
 
-## Локальная разработка
+## Разработка в Docker
 
-Node.js 24 (см. `.nvmrc`), npm.
-
-```sh
-npm ci
-npm run dev
-```
-
-Открыть http://localhost:4321. Изменения видны при сохранении.
+Нужны Docker Engine/Desktop и Docker Compose v2.20+.
 
 ```sh
-npm run build
-npm test
-npm run preview
+docker compose -f compose.dev.yaml up --build
 ```
 
-Сборка создаёт `dist/`. Тесты проверяют ссылки на разделы, наличие ресурсов, контакты и страницу 404. Preview показывает результат сборки.
+Открыть http://localhost:4321. Если порт занят: `DEV_PORT=4322 docker compose -f compose.dev.yaml up --build` и открыть localhost:4322. Изменения в `src/` и `public/` видны при сохранении. После изменения зависимостей пересобрать контейнер. Остановка:
+
+```sh
+docker compose -f compose.dev.yaml down
+```
+
+## Сборка и проверки
+
+```sh
+docker build -t lobanovskyru:check .
+bash scripts/smoke-test.sh lobanovskyru:check
+bash scripts/deploy.test.sh
+```
+
+Сборка выполняет `npm ci`, `npm run build` и `npm test` внутри Node.js 24. HTTP-проверка требует Bash и curl; проверяет главную, ресурс, 404 и редирект www. Тесты деплоя требуют Docker и проверяют ошибки и откат в изолированном контейнере без production-доступов.
+
+Альтернатива без Docker: Node.js 24, `npm ci`, затем `npm run dev`. Для проверки сборки: `npm run build && npm test`. Отдельный тест: `node --test --test-name-pattern="missing page" scripts/build.test.mjs` после сборки.
 
 ## Где менять сайт
 
-- `src/pages/index.astro` — главная страница, тексты, контакты и метаданные.
-- `src/styles/global.css` — оформление и адаптация к мобильным экранам.
-- `public/` — файлы, копируемые без изменений.
-- `deploy/Caddyfile` — пример конфигурации HTTPS на сервере.
-- `.github/workflows/site.yml` — сборка, проверки и публикация.
+- `src/pages/` — страницы, тексты и метаданные.
+- `src/styles/global.css` — оформление; `public/` — статические ресурсы.
+- `deploy/Caddyfile` — HTTP внутри контейнера; `compose.yaml` — production и маршруты Traefik.
 
-Сейчас формы заменены прямыми ссылками на Telegram, почту и телефон. Обработчик заявок не подключён. Сайт `basket.lobanovsky.ru` пока остаётся на Тильде.
+## Публикация
 
-## Git и CI/CD
+Push в `main` запускает Docker-сборку, тесты, публикацию `lobanovsky/lobanovskyru` в Docker Hub и SSH-деплой по digest образа. Pull request запускает только проверки. Настройка секретов, откат и DNS: [docs/deployment.md](docs/deployment.md).
 
-После создания удалённого репозитория на GitHub подключить его как `origin`. Push в `main` запускает сборку и тесты. Публикация заработает после настройки сервера, SSH и переменной `DEPLOY_ENABLED=true`. Инструкция и порядок переноса DNS: [docs/deployment.md](docs/deployment.md).
-
-Не хранить приватные ключи и токены в репозитории. Установленных правил форматирования пока нет; использовать отступы в два пробела в Astro и JavaScript.
+Секреты и приватные ключи не коммитить: `private/` и `.env*` исключены из Git, Docker использует разрешённый список файлов контекста.

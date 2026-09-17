@@ -1,0 +1,12 @@
+name: lobanovskyru-dev
+services:
+  site:
+    build:
+      context: .
+      target: development
+    ports:
+      - 127.0.0.1:${DEV_PORT:-4321}:4321
+    volumes:
+      - ./src:/app/src:ro
+      - ./public:/app/public:ro
+      - ./astro.config.mjs:/app/astro.config.mjs:ro

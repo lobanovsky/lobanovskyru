@@ -1,5 +1,13 @@
-lobanovsky.ru {
-    root * /srv/lobanovsky/current
+{
+    admin off
+    auto_https off
+    persist_config off
+}
+
+:8080 {
+    @www host www.lobanovsky.ru
+    redir @www https://lobanovsky.ru{uri} permanent
+    root * /srv
     encode zstd gzip
     header Cache-Control "public, max-age=0, must-revalidate"
     file_server
@@ -8,10 +16,3 @@ lobanovsky.ru {
         file_server
     }
 }
-
-www.lobanovsky.ru {
-    redir https://lobanovsky.ru{uri} permanent
-}
-
-# basket.lobanovsky.ru remains on Tilda until its migration is ready.
-# Add a separate host and document root when migrating that site.

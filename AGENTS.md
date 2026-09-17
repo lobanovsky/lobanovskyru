@@ -1,31 +1,26 @@
 # Repository Guidelines
 
-## Project Status & Structure
+## Structure
 
-This workspace is currently empty: no source code, assets, tests, build configuration, or Git metadata exists. No language or framework has been established. Update this guide as implementation choices become concrete.
+Astro static site. Pages: `src/pages/`; styles: `src/styles/`; static resources: `public/`. Docker build uses Node.js 24 and npm lockfile; Caddy serves the output behind the server's existing Traefik. `basket.lobanovsky.ru` remains on Tilda until a separate migration.
 
-When introducing the initial implementation, keep the layout predictable. Prefer `src/` for application code, `tests/` for tests, `assets/` for static resources, and `docs/` for supporting documentation, unless the chosen framework prescribes another structure. Create directories only when needed. Add a root `README.md` describing the project and setup process.
+## Commands
 
-## Build, Test, and Development Commands
+- Development: `docker compose -f compose.dev.yaml up --build` (localhost:4321).
+- Build and content tests: `docker build -t lobanovskyru:check .`.
+- HTTP smoke tests: `bash scripts/smoke-test.sh lobanovskyru:check`.
+- Deployment failure/rollback tests: `bash scripts/deploy.test.sh`.
+- Without Docker: Node.js 24, `npm ci`, `npm run build`, `npm test`.
+- Validate shell changes with `bash -n scripts/*.sh`; run `git diff --check`.
 
-No installation, development, build, or test commands are configured yet. Do not assume that commands such as `npm test` or `make build` work.
+Use two-space indentation in Astro/JS/YAML and the existing shell style. No formatter/linter is configured; avoid unrelated formatting.
 
-When adding tooling, document the exact commands in `README.md`, including prerequisites, dependency installation, local startup, production builds, and tests. Commit the appropriate dependency lockfile and specify required runtime versions.
+## Deployment
 
-## Coding Style & Naming Conventions
+GitHub Actions builds and tests PRs. Main also publishes to Docker Hub and deploys by image digest when `DEPLOY_ENABLED=true`. Production secrets belong to GitHub environment `production`. Server details and rollback: `docs/deployment.md`. Never replace the shared Traefik configuration or disturb other Compose projects. Production network: `housekpr-network`.
 
-Adopt the selected language’s standard formatter and linter, and commit their configuration. Until then, match the surrounding file’s indentation and avoid mixing tabs and spaces. Use descriptive names and consistent casing within each module. Keep changes focused; separate unrelated formatting from functional edits.
+## Security and changes
 
-## Testing Guidelines
+Never commit or print credentials. `private/` and `.env*` are ignored; Docker context uses an allowlist. SSH must verify known_hosts. Keep changes focused, use imperative commit subjects, and include validation in change summaries. Test deployment failure and rollback behavior without production credentials.
 
-No testing framework or coverage threshold is configured. Introduce tests alongside the first testable behavior, using the selected framework’s naming conventions. Cover expected behavior, boundary cases, and relevant failures. Document how to run the complete suite and individual tests without requiring production credentials.
-
-## Commit & Pull Request Guidelines
-
-No Git history is available to establish existing commit conventions. Use concise, imperative commit subjects, such as `Add initial application structure`.
-
-Pull requests should explain the purpose, summarize changes, and list validation performed or explain why it was unavailable. Link related issues when applicable and include screenshots for visible interface changes.
-
-## Security & Configuration
-
-Keep secrets and local configuration out of version control. Provide placeholder values in an example configuration file, and ignore dependency directories and generated build output once tooling is selected.
+Keep Traefik disabled for this site until DNS is verified. `routing.env` is persistent server state, default `TRAEFIK_ENABLED=false`. Avoid production ACME requests during testing; use isolated staging if issuance tests are needed. Never delete the shared ACME store.
